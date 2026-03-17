@@ -1,44 +1,27 @@
-name: Build Aroma Plugin
+name: Build WUPS Plugin
 
-on:
-  push:
-    branches: [main]
-  pull_request:
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitppc:latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git build-essential cmake
+      - name: Install WUPS
+        run: |
+          dkp-pacman -Syu --noconfirm
+          dkp-pacman -S --noconfirm wiiu-dev wut-tools wups-dev
 
-    - name: Install devkitPro
-      run: |
-        sudo mkdir -p /opt/devkitpro
-        sudo chown $USER /opt/devkitpro
-        git clone https://github.com/devkitPro/pacman.git /tmp/pacman
-        export DEVKITPRO=/opt/devkitpro
-        export DEVKITPPC=$DEVKITPRO/devkitPPC
-        /tmp/pacman/pacman -Syu --noconfirm devkitPPC wiiu-dev
+      - name: Build
+        run: make
 
-    - name: Download WUPS
-      run: |
-        git clone https://github.com/WiiUHomebrew/WiiUPluginSystem.git wups
-
-    - name: Build plugin
-      run: |
-        export DEVKITPRO=/opt/devkitpro
-        export DEVKITPPC=$DEVKITPRO/devkitPPC
-        make
-
-    - name: Upload compiled .wps
-      uses: actions/upload-artifact@v3
-      with:
-        name: CrashPlugin-wps
-        path: build/CrashPlugin.wps
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CrashCombo
+          path: "*.wps"
