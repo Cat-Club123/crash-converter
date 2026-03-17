@@ -15,7 +15,9 @@ jobs:
       - name: Install WUPS
         run: |
           dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --noconfirm wiiu-dev wut-tools wups-dev
+          dkp-pacman -S --noconfirm wiiu-dev wut-tools
+          git clone https://github.com/wiiu-env/WiiUPluginSystem /tmp/wups
+          cd /tmp/wups && make install
 
       - name: Build
         run: make
